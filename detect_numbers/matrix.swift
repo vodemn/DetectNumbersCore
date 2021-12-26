@@ -7,10 +7,10 @@
 
 import Foundation
 
-infix operator ~
+infix operator ~*
 
-class Matrix {
-    var _m: [[Double]] = []
+class Matrix<T: Numeric> {
+    var _m: [[T]] = []
     
     let rows: Int
     let columns: Int
@@ -18,28 +18,26 @@ class Matrix {
         get {return (rows, columns)}
     }
     
-    init(columns: Int, rows: Int, fill: Double?) {
-        self._m = Array(repeating: fill != nil
-                        ? Array(repeating: fill!, count: columns)
-                        : (0..<columns).map { _ in .random(in: 0...255) }, count: rows)
+    init(columns: Int, rows: Int, fill: T) {
+        self._m = Array(repeating: Array(repeating: fill, count: columns), count: rows)
         self.rows = rows
         self.columns = columns
     }
     
-    init(from arrays: [[Double]]) {
+    init(from arrays: [[T]]) {
         self._m = arrays
         self.rows = arrays.endIndex
         self.columns = arrays.first!.endIndex
     }
     
-    func appendRow(row: Array<Double>) throws {
+    func appendRow(row: Array<T>) throws {
         if (row.endIndex != _m.first?.endIndex) {
             throw "Cannot append row (size: \(row.endIndex))"
         }
         self._m.append(contentsOf: [row])
     }
     
-    func appendColumn(column: Array<Double>) throws {
+    func appendColumn(column: Array<T>) throws {
         if (column.endIndex != _m.endIndex) {
             throw "Cannot append column (size: \(column.endIndex))"
         } else {
@@ -54,7 +52,7 @@ class Matrix {
         print(_m)
     }
     
-    subscript(index:Int) -> Array<Double> {
+    subscript(index:Int) -> Array<T> {
         get {
             return _m[index]
         }
@@ -63,8 +61,8 @@ class Matrix {
         }
     }
     
-    func transposed() -> Matrix {
-        var result = [[Double]]()
+    func transposed() -> Matrix<T> {
+        var result = [[T]]()
         for index in 0..<_m.first!.count {
             // About map https://habr.com/ru/post/440722/
             result.append(_m.map{$0[index]})
@@ -79,7 +77,7 @@ class Matrix {
     static func *(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, *)}
     
     // Basic matrix multiplication
-    static func ~(a: Matrix, b: Matrix) throws -> Matrix {
+    static func ~*(a: Matrix, b: Matrix) throws -> Matrix {
         if (a.columns != b.rows) {
             throw "Sizes of matrices must be equal"
         } else {
@@ -89,7 +87,7 @@ class Matrix {
                 let rowA = a[i]
                 for j in 0..<b.columns {
                     let colB = transposedB[j]
-                    let sum: Double = (zip(rowA, colB).map {$0 * $1}).reduce(0, +)
+                    let sum: T = (zip(rowA, colB).map {$0 * $1}).reduce(0, +)
                     result[i][j] = sum
                 }
             }
@@ -97,7 +95,7 @@ class Matrix {
         }
     }
     
-    static private func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
+    static private func elementWise(_ a: Matrix<T>, _ b: Matrix<T>, _ operation: (T, T) -> T) throws -> Matrix<T> {
         if (a.rows != b.rows && a.columns != b.columns) {
             throw "Sizes of matrices must be equal"
         } else {
@@ -113,3 +111,23 @@ class Matrix {
 }
 
 extension String: LocalizedError {}
+
+// Test of matrix operators
+func testMatrixOperators() throws {
+    let a: Matrix = Matrix(from: [[1, 2], [3, 4], [5, 6], [7, 8]])
+    let b: Matrix = Matrix(from: [[1, 2, 3], [4, 5, 6]])
+    print(a.shape)
+    print(b.shape)
+    do {
+        print("Add:")
+        (try a + a).printMatrix()
+        print("Substract:")
+        (try a - a).printMatrix()
+        print("Multiply element-wise:")
+        (try a * a).printMatrix()
+        print("Multiply:")
+        let c: Matrix = try a ~* b
+        print(c.shape)
+        c.printMatrix()
+    }
+}
