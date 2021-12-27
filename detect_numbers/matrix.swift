@@ -30,6 +30,10 @@ class Matrix<T: Numeric> {
         self.columns = arrays.first!.endIndex
     }
     
+    func copy() -> Matrix<T> {
+        return Matrix<T>(from: self._m)
+    }
+    
     func appendRow(row: Array<T>) throws {
         if (row.endIndex != _m.first?.endIndex) {
             throw "Cannot append row (size: \(row.endIndex))"
@@ -58,6 +62,12 @@ class Matrix<T: Numeric> {
         }
         set(newElm) {
             _m[index] = newElm
+        }
+    }
+
+    subscript(range:Range<Int>) -> Matrix<T> {
+        get {
+            return Matrix(from: Array(_m[range]))
         }
     }
     
@@ -107,6 +117,14 @@ class Matrix<T: Numeric> {
             }
             return result
         }
+    }
+    
+    func apply(_ function: (T) -> T) {
+        self._m = self._m.map {$0.map {function($0)}}
+    }
+    
+    func applyOnRows(_ function: ([T]) -> [T]) {
+        self._m = self._m.map {function($0)}
     }
 }
 
