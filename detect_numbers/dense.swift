@@ -8,22 +8,20 @@
 import Foundation
 
 class Dense {
-    var w: Matrix<Double>
+    var w: Matrix
     let lr: Double
     private let _isLast: Bool
-    private var _cache: (Matrix<Double>, Matrix<Double>)?
+    private var _cache: (Matrix, Matrix)?
     
     init(inputSize: Int, neurons: Int, lr: Double, isLast: Bool){
-        assert((0.1...1).contains(lr), "Learning rate is out of range")
-        
         self.w = Matrix.init(from: Array(repeating: (0...inputSize).map { _ in Double((.random(in: 0...255)) / (neurons + inputSize + 1)) },
                                          count: neurons))
         self._isLast = isLast
         self.lr = lr
     }
     
-    func forward(x: Matrix<Double>) -> Matrix<Double> {
-        let x_ext: Matrix<Double> = x.copy()
+    func forward(x: Matrix) -> Matrix {
+        let x_ext: Matrix = x.copy()
         try! x_ext.appendRow(row: Array(repeating: 1, count: x.columns))
         let result = try! self.w ~* x_ext
         if (self._isLast) {
@@ -35,10 +33,10 @@ class Dense {
         return result
     }
     
-    func backward(dE: Matrix<Double>) -> Matrix<Double> {
-        var derive: Matrix<Double> = dE.copy()
+    func backward(dE: Matrix) -> Matrix {
+        var derive: Matrix = dE.copy()
         if (!_isLast) {
-            let output: Matrix<Double> = _cache!.1.copy()
+            let output: Matrix = _cache!.1.copy()
             output.apply({sigmoid_derived($0)})
             derive = try! dE * output
         }

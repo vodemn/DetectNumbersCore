@@ -8,12 +8,12 @@
 import Foundation
 
 
-func loadDataset() -> ((Matrix<Double>, Matrix<Double>), (Matrix<Int>, Matrix<Int>))? {
+func loadDataset() -> ((Matrix, Matrix), (Matrix, Matrix))? {
     let inputsCSV = loadFile("inputs")
     let targetsCSV = loadFile("targets")
     if (inputsCSV != nil && targetsCSV != nil) {
         var parsedInputsCSV: [[Double]] = parseCSV(inputsCSV!, {Double($0) ?? 0})
-        var parsedTargetsCSV: [[Int]] = parseCSV(targetsCSV!, {Int(Double($0) ?? 0)})
+        var parsedTargetsCSV: [[Double]] = parseCSV(targetsCSV!, {Double($0) ?? 0})
         if (parsedInputsCSV[0].endIndex != parsedTargetsCSV[0].endIndex) {return nil}
         
         let setsCount = parsedInputsCSV[0].endIndex
@@ -35,9 +35,9 @@ func loadDataset() -> ((Matrix<Double>, Matrix<Double>), (Matrix<Int>, Matrix<In
     }
 }
 
-private func intToOneHot(_ value: Int) -> [Int] {
-    var out: [Int] = Array(repeating: 0, count: 10)
-    out[value] = 1
+private func intToOneHot(_ value: Double) -> [Double] {
+    var out: [Double] = Array(repeating: 0, count: 10)
+    out[Int(value)] = 1
     return out
 }
 
