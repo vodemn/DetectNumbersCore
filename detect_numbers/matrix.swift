@@ -107,7 +107,7 @@ class Matrix {
     }
     
     static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
-        if (a.rows != b.rows && a.columns != b.columns) {
+        if (a.shape != b.shape) {
             throw "Sizes of matrices must be equal"
         } else {
             let result: Matrix = Matrix(columns: a.columns, rows: a.rows, fill: 0)

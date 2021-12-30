@@ -35,17 +35,21 @@ class Dense {
     
     func backward(dE: Matrix) -> Matrix {
         var derive: Matrix = dE.copy()
+        var dENext: Matrix = (try! dE.transposed() ~* w)
+        dENext = dENext.transposed()
+        dENext = dENext[0..<dENext.rows - 1]
+        
         if (!_isLast) {
             let output: Matrix = _cache!.1.copy()
             output.apply({sigmoid_derived($0)})
-            derive = try! dE * output
+            derive = try! dE * output //TODO fix sizes
         }
         derive.apply({$0 / 1000})
         derive = try! derive ~* _cache!.0.transposed()
         derive.apply({$0 * lr})
         w = try! w - derive
         
-        return (try! dE.transposed() * w).transposed()[0..<dE.rows]
+        return dENext
     }
 }
 
