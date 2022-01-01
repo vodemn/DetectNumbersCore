@@ -91,18 +91,14 @@ class Matrix {
         if (a.columns != b.rows) {
             throw "Sizes of matrices must be equal"
         } else {
-            let transposedB: Matrix = b.transposed()
-            let result: Matrix = Matrix(columns: b.columns, rows: a.rows, fill: 0)
-            
-            // TODO rewrite so it works faster
-            for i in 0..<a.rows {
-                let rowA = a[i]
-                for j in 0..<b.columns {
-                    let colB = transposedB[j]
-                    result[i][j] = (zip(rowA, colB).map {$0 * $1}).reduce(0, +)
+            let start = CFAbsoluteTimeGetCurrent()
+            let bT: Matrix = b.transposed()
+            let result = a.values.map {(rowA: [Double]) -> [Double] in
+                bT.values.map {(colB: [Double]) -> Double in
+                    (zip(rowA, colB).map {$0 * $1}).reduce(0, +)
                 }
             }
-            return result
+            return Matrix(from: result)
         }
     }
     
@@ -110,13 +106,8 @@ class Matrix {
         if (a.shape != b.shape) {
             throw "Sizes of matrices must be equal"
         } else {
-            let result: Matrix = Matrix(columns: a.columns, rows: a.rows, fill: 0)
-            for i in 0..<a.rows {
-                for j in 0..<a.columns {
-                    result[i][j] = operation(a[i][j], b[i][j])
-                }
-            }
-            return result
+            let result = zip(a.values, b.values).map {zip($0.0, $0.1).map{operation($0.0, $0.1)}}
+            return Matrix(from: result)
         }
     }
     
