@@ -25,22 +25,16 @@ class Matrix {
         get {return self.values.max()!}
     }
     
-    init(columns: Int, rows: Int, fill: Double) {
-        self.columns = columns
-        self.rows = rows
+    init(fill: Double, shape: (Int, Int)) {
+        self.rows = shape.0
+        self.columns = shape.1
         self.values = Array(repeating: fill, count: rows*columns)
     }
     
     init(from arrays: [[Double]]) {
-        self.columns = arrays.first!.endIndex
         self.rows = arrays.endIndex
+        self.columns = arrays.first!.endIndex
         self.values = arrays.flatMap {$0}
-    }
-    
-    init(from array: [Double], columns: Int, rows: Int) {
-        self.columns = columns
-        self.rows = rows
-        self.values = array
     }
     
     init(from array: [Double], shape: (Int, Int)) {
@@ -49,29 +43,24 @@ class Matrix {
         self.values = array
     }
     
-    func copy() -> Matrix {
-        return Matrix(from: self.values, columns: self.columns, rows: self.rows)
-    }
-    
-    func appendRow(row: Array<Double>) {
-        precondition(row.endIndex == self.columns, "Cannot append row of size \(row.endIndex)")
-        self.values.append(contentsOf: row)
-        self.rows = Int(values.endIndex / self.columns)
+    func appendRow(row: Array<Double>) -> Matrix {
+        assert(row.endIndex == columns, "Cannot append row of size \(row.endIndex)")
+        return Matrix(from: (values + row), shape: (rows + 1, columns))
     }
 }
 
 // Transformation
 extension Matrix {
     func apply(_ function: (Double) -> Double) -> Matrix {
-        return Matrix.init(from: self.values.map {function($0)}, columns: columns, rows: rows)
+        return Matrix.init(from: values.map {function($0)}, shape: shape)
     }
     
     func applyOnRows(_ function: ([Double]) -> [Double]) -> Matrix {
         var result: [Double] = []
-        for subsequence in self.values.unfoldSubSequences(limitedTo: self.columns) {
+        for subsequence in values.unfoldSubSequences(limitedTo: columns) {
             result.append(contentsOf: function(Array(subsequence)))
         }
-        return Matrix.init(from: result, columns: columns, rows: rows)
+        return Matrix.init(from: result, shape: shape)
     }
     
     func applyOnColumns(_ function: ([Double]) -> [Double]) -> Matrix {
@@ -117,7 +106,7 @@ extension Matrix {
                        vDSP_Length(a.rows),
                        vDSP_Length(b.columns),
                        vDSP_Length(b.rows))
-            return Matrix(from: c, columns: b.columns, rows: a.rows)
+            return Matrix(from: c, shape: (a.rows, b.columns))
         }
     }
 }
@@ -127,8 +116,8 @@ extension Matrix {
     public subscript(range: CountableRange<Int>) -> Matrix {
         get {
             precondition(range.upperBound <= rows, "Invalid range")
-            let ran = (range.lowerBound * self.columns)..<(range.upperBound * self.columns)
-            return Matrix(from: Array(self.values[ran]), columns: columns, rows: range.upperBound - range.lowerBound)
+            let ran = (range.lowerBound * columns)..<(range.upperBound * columns)
+            return Matrix(from: Array(self.values[ran]), shape: (range.upperBound - range.lowerBound, columns))
             
         }
     }
@@ -137,7 +126,7 @@ extension Matrix {
 // Transpose
 extension Matrix {
     public func transposed() -> Matrix {
-        let results = Matrix(columns: rows, rows: columns, fill: 0)
+        let results = Matrix(fill: 0, shape: (columns, rows))
         let rows = vDSP_Length(results.rows)
         let columns = vDSP_Length(results.columns)
         values.withUnsafeBufferPointer { srcPtr in

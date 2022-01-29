@@ -20,8 +20,7 @@ class Dense {
     }
     
     func forward(x: Matrix) -> Matrix {
-        let x_ext: Matrix = x.copy()
-        x_ext.appendRow(row: Array(repeating: 1, count: x.columns))
+        let x_ext: Matrix = x.appendRow(row: Array(repeating: 1, count: x.columns))
         var result = self.w ~* x_ext
         result = forwardActivation(x: result)
         self.cache = (x_ext, result)
@@ -32,10 +31,12 @@ class Dense {
         var dENext: Matrix = (dE.transposed() ~* w).transposed()
         dENext = dENext[0..<dENext.rows - 1]
         
-        var derive: Matrix = dE.copy()
+        var derive: Matrix
         let backwardAct: Matrix? =  backwardActivation(cache!.1)
         if (backwardAct != nil) {
             derive = dE * backwardAct!
+        } else {
+            derive = dE
         }
         derive = (derive / 1000) ~* cache!.0.transposed()
         w = w - (derive * lr)
