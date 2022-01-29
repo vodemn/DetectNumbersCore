@@ -87,7 +87,7 @@ extension Matrix {
     
     static func *(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, *)}
     
-    static func /(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, *)}
+    static func /(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, /)}
     
     private static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
         if (a.shape != b.shape) {
