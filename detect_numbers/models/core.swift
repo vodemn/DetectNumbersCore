@@ -19,8 +19,8 @@ class Core {
     
     func train(inputs: Matrix, targets: Matrix, epochs: Int) {
         var errors: [Double] = []
-        for i in 0..<epochs {
-            let start = CFAbsoluteTimeGetCurrent()
+        let start = CFAbsoluteTimeGetCurrent()
+        for _ in 0..<epochs {
             var result = inputs
             for layer in layers {
                 result = layer.forward(x: result)
@@ -33,8 +33,8 @@ class Core {
             for layer in layers.reversed() {
                 dE = layer.backward(dE: dE)
             }
-            print("Epoch \(i) took \(CFAbsoluteTimeGetCurrent() - start) seconds")
         }
+        print("Trained in \(CFAbsoluteTimeGetCurrent() - start) seconds")
         (errors as NSArray).write(
             to: URL(fileURLWithPath: "/Users/vadim.turko/Documents/Projects/detect_numbers/errors.csv"),
             atomically: true)

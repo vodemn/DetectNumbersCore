@@ -43,6 +43,12 @@ class Matrix {
         self.values = array
     }
     
+    init(from array: [Double], shape: (Int, Int)) {
+        self.rows = shape.0
+        self.columns = shape.1
+        self.values = array
+    }
+    
     func copy() -> Matrix {
         return Matrix(from: self.values, columns: self.columns, rows: self.rows)
     }
@@ -79,28 +85,24 @@ infix operator ~*
 extension Matrix {
     
     // Element-wise operations
-    static func +(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, +)}
-    
-    static func -(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, -)}
-    
-    static func *(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, *)}
-    
-    static func *(a: Matrix, b: Double) -> Matrix {elementWise(a, b, *)}
-    
-    static func /(a: Matrix, b: Double) -> Matrix {elementWise(a, b, /)}
-    
-    private static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) -> Matrix {
-        if (a.shape != b.shape) {
-            fatalError("Sizes of matrices must be equal")
-        } else {
-            let result = zip(a.values, b.values).map{operation($0.0, $0.1)}
-            return Matrix(from: result, columns: a.columns, rows: a.rows)
-        }
+    static func +(a: Matrix, b: Matrix) -> Matrix {
+        return Matrix(from: vDSP.add(a.values, b.values), shape: a.shape)
     }
     
-    private static func elementWise(_ a: Matrix, _ b: Double, _ operation: (Double, Double) -> Double) -> Matrix {
-        let result = a.values.map{operation($0, b)}
-        return Matrix(from: result, columns: a.columns, rows: a.rows)
+    static func -(a: Matrix, b: Matrix) -> Matrix {
+        return Matrix(from: vDSP.subtract(a.values, b.values), shape: a.shape)
+    }
+    
+    static func *(a: Matrix, b: Matrix) -> Matrix {
+        return Matrix(from: vDSP.multiply(a.values, b.values), shape: a.shape)
+    }
+    
+    static func *(a: Matrix, b: Double) -> Matrix {
+        return Matrix(from: vDSP.multiply(b, a.values), shape: a.shape)
+    }
+    
+    static func /(a: Matrix, b: Double) -> Matrix {
+        return Matrix(from: vDSP.divide(a.values, b), shape: a.shape)
     }
     
     // Basic matrix multiplication
@@ -127,7 +129,7 @@ extension Matrix {
             precondition(range.upperBound <= rows, "Invalid range")
             let ran = (range.lowerBound * self.columns)..<(range.upperBound * self.columns)
             return Matrix(from: Array(self.values[ran]), columns: columns, rows: range.upperBound - range.lowerBound)
-    
+            
         }
     }
 }
