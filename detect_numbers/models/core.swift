@@ -12,8 +12,9 @@ class Core {
     
     init(inputSize: Int, outputSize: Int, neurons: Int, lr: Double) {
         self.layers = [
-            Dense(inputSize: inputSize, neurons: neurons, lr: lr, isLast: false),
-            Dense(inputSize: neurons, neurons: outputSize, lr: lr, isLast: true),
+            InnerDense(inputSize: inputSize, neurons: neurons, lr: lr),
+            InnerDense(inputSize: neurons, neurons: neurons, lr: lr),
+            LastDense(inputSize: neurons, neurons: outputSize, lr: lr),
         ]
     }
     
