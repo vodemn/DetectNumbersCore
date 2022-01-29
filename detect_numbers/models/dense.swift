@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Accelerate
 
 class Dense {
     var w: Matrix
@@ -88,8 +89,7 @@ class LastDense: Dense {
     private func softmax(_ row: Array<Double>) -> Array<Double> {
         let max = row.max()!
         let e = row.map {exp($0 - max)}
-        let sum: Double = e.reduce(0, +)
+        let sum: Double = vDSP.sum(e)
         return e.map {$0 / sum}
     }
-
 }

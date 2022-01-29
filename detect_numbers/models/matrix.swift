@@ -147,8 +147,6 @@ extension Collection {
     }
 }
 
-extension String: LocalizedError {}
-
 // Test of matrix operators
 func testMatrixOperators() {
     let a: Matrix = Matrix(from: [[1, 2], [3, 4], [5, 6], [7, 8]])
