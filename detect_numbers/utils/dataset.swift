@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 func loadDataset() -> ((Matrix, Matrix), (Matrix, Matrix))? {
     let inputsCSV = loadFile("inputs")
     let targetsCSV = loadFile("targets")

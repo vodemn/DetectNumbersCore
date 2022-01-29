@@ -13,7 +13,6 @@ class Core {
     init(inputSize: Int, outputSize: Int, neurons: Int, lr: Double) {
         self.layers = [
             InnerDense(inputSize: inputSize, neurons: neurons, lr: lr),
-            InnerDense(inputSize: neurons, neurons: neurons, lr: lr),
             LastDense(inputSize: neurons, neurons: outputSize, lr: lr),
         ]
     }

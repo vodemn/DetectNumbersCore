@@ -24,6 +24,6 @@ struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
 
 extension Double {
     static func random01() -> Double {
-        return Double.random(in: 0...1, using: &generator)
+        return Double.random(in: 0..<1, using: &generator)
     }
 }
