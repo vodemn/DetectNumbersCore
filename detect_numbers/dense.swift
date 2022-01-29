@@ -14,7 +14,9 @@ class Dense {
     private var _cache: (Matrix, Matrix)?
     
     init(inputSize: Int, neurons: Int, lr: Double, isLast: Bool){
-        self.w = Matrix.init(from: Array(repeating: (0...inputSize).map { _ in Double((.random(in: 0...255)) / (neurons + inputSize + 1)) },
+        let norm: Double = 2.0 / sqrt(Double(neurons + inputSize + 1))
+        self.w = Matrix.init(from: Array(repeating: (0...inputSize)
+                                            .map { _ in Double.random(in: 0...1) * norm },
                                          count: neurons))
         self._isLast = isLast
         self.lr = lr
@@ -22,32 +24,29 @@ class Dense {
     
     func forward(x: Matrix) -> Matrix {
         let x_ext: Matrix = x.copy()
-        try! x_ext.appendRow(row: Array(repeating: 1, count: x.columns))
-        let result = try! self.w ~* x_ext
+        x_ext.appendRow(row: Array(repeating: 1, count: x.columns))
+        var result = try! self.w ~* x_ext
         if (self._isLast) {
-            result.applyOnRows({softmax($0)})
+            result = result.applyOnColumns({softmax($0)})
         } else {
-            result.apply({sigmoid($0)})
+            result = result.apply({sigmoid($0)})
         }
         self._cache = (x_ext, result)
+        print(result.min, result.max)
         return result
     }
     
     func backward(dE: Matrix) -> Matrix {
-        var derive: Matrix = dE.copy()
-        var dENext: Matrix = (try! dE.transposed() ~* w)
-        dENext = dENext.transposed()
+        var dENext: Matrix = (try! dE.transposed() ~* w).transposed()
         dENext = dENext[0..<dENext.rows - 1]
         
+        var derive: Matrix = dE.copy()
         if (!_isLast) {
-            let output: Matrix = _cache!.1.copy()
-            output.apply({sigmoid_derived($0)})
+            let output: Matrix = _cache!.1.apply({sigmoid_derived($0)})
             derive = try! dE * output //TODO fix sizes
         }
-        derive.apply({$0 / 1000})
-        derive = try! derive ~* _cache!.0.transposed()
-        derive.apply({$0 * lr})
-        w = try! w - derive
+        derive = try! (derive / 1000) ~* _cache!.0.transposed()
+        w = try! w - (derive * lr)
         
         return dENext
     }
@@ -62,6 +61,8 @@ func sigmoid_derived(_ i: Double) -> Double {
 }
 
 func softmax(_ row: Array<Double>) -> Array<Double> {
-    let sum: Double = row.reduce(0, +)
+    let max = row.max()!
+    let e = row.map {exp($0 - max)}
+    let sum: Double = e.reduce(0, +)
     return row.map {$0 / sum}
 }

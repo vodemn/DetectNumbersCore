@@ -20,19 +20,20 @@ class Core {
     func train(inputs: Matrix, targets: Matrix, epochs: Int) {
         var errors: [Double] = []
         for i in 0..<epochs {
-            print(i)
+            let start = CFAbsoluteTimeGetCurrent()
             var result = inputs
             for layer in layers {
                 result = layer.forward(x: result)
             }
             
-            let loss: Double = logloss(result, targets)
+            let loss: Double = logloss(targets, result)
             errors.append(loss)
             
-            var dE: Matrix = logloss_derivative(result, targets)
+            var dE: Matrix = logloss_derivative(targets, result)
             for layer in layers.reversed() {
                 dE = layer.backward(dE: dE)
             }
+            print("Epoch \(i) took \(CFAbsoluteTimeGetCurrent() - start) seconds")
         }
         (errors as NSArray).write(
             to: URL(fileURLWithPath: "/Users/vadim.turko/Documents/Projects/detect_numbers/errors.csv"),
@@ -48,17 +49,16 @@ class Core {
      }
      */
     
-    private func logloss(_ result: Matrix, _ targets: Matrix) -> Double {
+    private func logloss(_ targets: Matrix, _ result: Matrix) -> Double {
         assert(targets.shape == result.shape)
-        let error: Double = zip(result.values, targets.values)
-            .reduce(0, {r, dataset in zip(dataset.0, dataset.1)
-                .reduce(0.0, {r, data in r + data.1 * log(data.0)})})
+        print(targets.values.reduce(0, +))
+        let error: Double = (try! targets * result.apply({log($0)})).values.reduce(0, +)
         return -(error / Double(result.columns))
     }
     
-    private func logloss_derivative(_ result: Matrix, _ targets: Matrix) -> Matrix {
+    private func logloss_derivative(_ targets: Matrix, _ result: Matrix) -> Matrix {
         assert(targets.shape == result.shape)
-        return try! result + targets
+        return try! result - targets
     }
 }
 

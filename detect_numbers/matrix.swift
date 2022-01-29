@@ -6,117 +6,153 @@
 //
 
 import Foundation
+import Accelerate
 
 infix operator ~*
 
 class Matrix {
-    var _m: [[Double]] = []
+    var values: [Double] = []
+    let columns: Int
+    var rows: Int
     
-    var rows: Int {
-        get {return _m.endIndex}
-    }
-    var columns: Int {
-        get {return _m.first!.endIndex}
-    }
     var shape: (Int, Int) {
         get {return (rows, columns)}
     }
     
-    var values: [[Double]] {
-        get {return _m}
+    var min: Double {
+        get {return self.values.min()!}
+    }
+    
+    var max: Double {
+        get {return self.values.max()!}
     }
     
     init(columns: Int, rows: Int, fill: Double) {
-        self._m = Array(repeating: Array(repeating: fill, count: columns), count: rows)
+        self.columns = columns
+        self.rows = rows
+        self.values = Array(repeating: fill, count: rows*columns)
     }
     
     init(from arrays: [[Double]]) {
-        self._m = arrays
+        self.columns = arrays.first!.endIndex
+        self.rows = arrays.endIndex
+        self.values = arrays.flatMap {$0}
+    }
+    
+    init(from array: [Double], columns: Int, rows: Int) {
+        self.columns = columns
+        self.rows = rows
+        self.values = array
     }
     
     func copy() -> Matrix {
-        return Matrix(from: self._m)
+        return Matrix(from: self.values, columns: self.columns, rows: self.rows)
     }
     
-    func appendRow(row: Array<Double>) throws {
-        if (row.endIndex != _m.first?.endIndex) {
-            throw "Cannot append row (size: \(row.endIndex))"
-        }
-        self._m.append(contentsOf: [row])
+    func appendRow(row: Array<Double>) {
+        precondition(row.endIndex == self.columns, "Cannot append row of size \(row.endIndex)")
+        self.values.append(contentsOf: row)
+        self.rows = Int(values.endIndex / self.columns)
+    }
+}
+
+// Transformation
+extension Matrix {
+    func apply(_ function: (Double) -> Double) -> Matrix {
+        return Matrix.init(from: self.values.map {function($0)}, columns: columns, rows: rows)
     }
     
-    func appendColumn(column: Array<Double>) throws {
-        if (column.endIndex != _m.endIndex) {
-            throw "Cannot append column (size: \(column.endIndex))"
-        } else {
-            for (index, _) in self._m.enumerated() {
-                self._m[index].append(contentsOf: [column[index]])
-            }
+    func applyOnRows(_ function: ([Double]) -> [Double]) -> Matrix {
+        var result: [Double] = []
+        for subsequence in self.values.unfoldSubSequences(limitedTo: self.columns) {
+            result.append(contentsOf: function(Array(subsequence)))
         }
-        
+        return Matrix.init(from: result, columns: columns, rows: rows)
     }
     
-    subscript(index:Int) -> Array<Double> {
-        get {
-            return _m[index]
-        }
-        set(newElm) {
-            _m[index] = newElm
-        }
+    func applyOnColumns(_ function: ([Double]) -> [Double]) -> Matrix {
+        return transposed().applyOnRows(function).transposed()
     }
+}
+
+// Operators
+extension Matrix {
     
-    subscript(range:Range<Int>) -> Matrix {
-        get {
-            return Matrix(from: Array(_m[range]))
-        }
-    }
-    
-    func transposed() -> Matrix {
-        var result = [[Double]]()
-        for index in 0..<_m.first!.count {
-            // About map https://habr.com/ru/post/440722/
-            result.append(_m.map{$0[index]})
-        }
-        return Matrix(from: result)
-    }
-    
+    // Element-wise operations
     static func +(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, +)}
     
     static func -(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, -)}
     
     static func *(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, *)}
     
+    static func *(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, *)}
+    
+    static func /(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, *)}
+    
+    private static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
+        if (a.shape != b.shape) {
+            throw "Sizes of matrices must be equal"
+        } else {
+            let result = zip(a.values, b.values).map{operation($0.0, $0.1)}
+            return Matrix(from: result, columns: a.columns, rows: a.rows)
+        }
+    }
+    
+    private static func elementWise(_ a: Matrix, _ b: Double, _ operation: (Double, Double) -> Double) throws -> Matrix {
+        let result = a.values.map{operation($0, b)}
+        return Matrix(from: result, columns: a.columns, rows: a.rows)
+    }
+    
     // Basic matrix multiplication
     static func ~*(a: Matrix, b: Matrix) throws -> Matrix {
         if (a.columns != b.rows) {
             throw "Sizes of matrices must be equal"
         } else {
-            let start = CFAbsoluteTimeGetCurrent()
-            let bT: Matrix = b.transposed()
-            let result = a.values.map {(rowA: [Double]) -> [Double] in
-                bT.values.map {(colB: [Double]) -> Double in
-                    (zip(rowA, colB).map {$0 * $1}).reduce(0, +)
-                }
-            }
-            return Matrix(from: result)
+            var c: [Double] = Array(repeating: 0, count: a.rows * b.columns)
+            vDSP_mmulD(a.values, vDSP_Stride(1),
+                       b.values, vDSP_Stride(1),
+                       &c, vDSP_Stride(1),
+                       vDSP_Length(a.rows),
+                       vDSP_Length(b.columns),
+                       vDSP_Length(b.rows))
+            return Matrix(from: c, columns: b.columns, rows: a.rows)
         }
     }
+}
+
+// Subscripts
+extension Matrix {
+    public subscript(range: CountableRange<Int>) -> Matrix {
+        get {
+            precondition(range.upperBound <= rows, "Invalid range")
+            let ran = (range.lowerBound * self.columns)..<(range.upperBound * self.columns)
+            return Matrix(from: Array(self.values[ran]), columns: columns, rows: range.upperBound - range.lowerBound)
     
-    static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
-        if (a.shape != b.shape) {
-            throw "Sizes of matrices must be equal"
-        } else {
-            let result = zip(a.values, b.values).map {zip($0.0, $0.1).map{operation($0.0, $0.1)}}
-            return Matrix(from: result)
         }
     }
-    
-    func apply(_ function: (Double) -> Double) {
-        self._m = self._m.map {$0.map {function($0)}}
+}
+
+// Transpose
+extension Matrix {
+    public func transposed() -> Matrix {
+        let results = Matrix(columns: rows, rows: columns, fill: 0)
+        let rows = vDSP_Length(results.rows)
+        let columns = vDSP_Length(results.columns)
+        values.withUnsafeBufferPointer { srcPtr in
+            vDSP_mtransD(srcPtr.baseAddress!, 1, &results.values, 1, rows, columns)
+        }
+        return results
     }
-    
-    func applyOnRows(_ function: ([Double]) -> [Double]) {
-        self._m = self._m.map {function($0)}
+}
+
+extension Collection {
+    func unfoldSubSequences(limitedTo maxLength: Int) -> UnfoldSequence<SubSequence,Index> {
+        sequence(state: startIndex) { start in
+            guard start < self.endIndex else { return nil }
+            let end = self.index(start, offsetBy: maxLength, limitedBy: self.endIndex) ?? self.endIndex
+            defer { start = end }
+            return self[start..<end]
+        }
     }
 }
 
