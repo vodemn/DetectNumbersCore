@@ -40,18 +40,8 @@ class Core {
             atomically: true)
     }
     
-    /*
-     func test(inputs: Matrix, targets: Matrix) -> Double {
-     var result = inputs
-     for layer in layers {
-     result = layer.forward(x: result)
-     }
-     }
-     */
-    
     private func logloss(_ targets: Matrix, _ result: Matrix) -> Double {
         assert(targets.shape == result.shape)
-        print(targets.values.reduce(0, +))
         let error: Double = (try! targets * result.apply({log($0)})).values.reduce(0, +)
         return -(error / Double(result.columns))
     }

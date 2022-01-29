@@ -41,7 +41,7 @@ class Dense {
         var derive: Matrix = dE.copy()
         if (!_isLast) {
             let output: Matrix = _cache!.1.apply({sigmoid_derived($0)})
-            derive = try! dE * output //TODO fix sizes
+            derive = try! dE * output
         }
         derive = try! (derive / 1000) ~* _cache!.0.transposed()
         w = try! w - (derive * lr)
