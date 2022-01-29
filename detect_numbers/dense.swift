@@ -15,9 +15,8 @@ class Dense {
     
     init(inputSize: Int, neurons: Int, lr: Double, isLast: Bool){
         let norm: Double = 2.0 / sqrt(Double(neurons + inputSize + 1))
-        self.w = Matrix.init(from: Array(repeating: (0...inputSize)
-                                            .map { _ in Double.random(in: 0...1) * norm },
-                                         count: neurons))
+        let weights: [[Double]] = (0..<neurons).map {_ in (0...inputSize).map { _ in Double.random(in: 0...1) * norm }}
+        self.w = Matrix.init(from: weights)
         self._isLast = isLast
         self.lr = lr
     }
@@ -32,7 +31,6 @@ class Dense {
             result = result.apply({sigmoid($0)})
         }
         self._cache = (x_ext, result)
-        print(result.min, result.max)
         return result
     }
     
@@ -64,5 +62,5 @@ func softmax(_ row: Array<Double>) -> Array<Double> {
     let max = row.max()!
     let e = row.map {exp($0 - max)}
     let sum: Double = e.reduce(0, +)
-    return row.map {$0 / sum}
+    return e.map {$0 / sum}
 }
