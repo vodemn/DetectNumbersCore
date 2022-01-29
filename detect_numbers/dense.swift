@@ -24,7 +24,7 @@ class Dense {
     func forward(x: Matrix) -> Matrix {
         let x_ext: Matrix = x.copy()
         x_ext.appendRow(row: Array(repeating: 1, count: x.columns))
-        var result = try! self.w ~* x_ext
+        var result = self.w ~* x_ext
         if (self._isLast) {
             result = result.applyOnColumns({softmax($0)})
         } else {
@@ -35,16 +35,16 @@ class Dense {
     }
     
     func backward(dE: Matrix) -> Matrix {
-        var dENext: Matrix = (try! dE.transposed() ~* w).transposed()
+        var dENext: Matrix = (dE.transposed() ~* w).transposed()
         dENext = dENext[0..<dENext.rows - 1]
         
         var derive: Matrix = dE.copy()
         if (!_isLast) {
             let output: Matrix = _cache!.1.apply({sigmoid_derived($0)})
-            derive = try! dE * output
+            derive = dE * output
         }
-        derive = try! (derive / 1000) ~* _cache!.0.transposed()
-        w = try! w - (derive * lr)
+        derive = (derive / 1000) ~* _cache!.0.transposed()
+        w = w - (derive * lr)
         
         return dENext
     }

@@ -41,14 +41,12 @@ class Core {
     }
     
     private func logloss(_ targets: Matrix, _ result: Matrix) -> Double {
-        assert(targets.shape == result.shape)
-        let error: Double = (try! targets * result.apply({log($0)})).values.reduce(0, +)
+        let error: Double = (targets * result.apply({log($0)})).values.reduce(0, +)
         return -(error / Double(result.columns))
     }
     
     private func logloss_derivative(_ targets: Matrix, _ result: Matrix) -> Matrix {
-        assert(targets.shape == result.shape)
-        return try! result - targets
+        return result - targets
     }
 }
 

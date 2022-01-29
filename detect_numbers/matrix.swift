@@ -8,8 +8,6 @@
 import Foundation
 import Accelerate
 
-infix operator ~*
-
 class Matrix {
     var values: [Double] = []
     let columns: Int
@@ -76,37 +74,39 @@ extension Matrix {
 }
 
 // Operators
+infix operator ~*
+
 extension Matrix {
     
     // Element-wise operations
-    static func +(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, +)}
+    static func +(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, +)}
     
-    static func -(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, -)}
+    static func -(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, -)}
     
-    static func *(a: Matrix, b: Matrix) throws -> Matrix {try elementWise(a, b, *)}
+    static func *(a: Matrix, b: Matrix) -> Matrix {elementWise(a, b, *)}
     
-    static func *(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, *)}
+    static func *(a: Matrix, b: Double) -> Matrix {elementWise(a, b, *)}
     
-    static func /(a: Matrix, b: Double) throws -> Matrix {try elementWise(a, b, /)}
+    static func /(a: Matrix, b: Double) -> Matrix {elementWise(a, b, /)}
     
-    private static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) throws -> Matrix {
+    private static func elementWise(_ a: Matrix, _ b: Matrix, _ operation: (Double, Double) -> Double) -> Matrix {
         if (a.shape != b.shape) {
-            throw "Sizes of matrices must be equal"
+            fatalError("Sizes of matrices must be equal")
         } else {
             let result = zip(a.values, b.values).map{operation($0.0, $0.1)}
             return Matrix(from: result, columns: a.columns, rows: a.rows)
         }
     }
     
-    private static func elementWise(_ a: Matrix, _ b: Double, _ operation: (Double, Double) -> Double) throws -> Matrix {
+    private static func elementWise(_ a: Matrix, _ b: Double, _ operation: (Double, Double) -> Double) -> Matrix {
         let result = a.values.map{operation($0, b)}
         return Matrix(from: result, columns: a.columns, rows: a.rows)
     }
     
     // Basic matrix multiplication
-    static func ~*(a: Matrix, b: Matrix) throws -> Matrix {
+    static func ~*(a: Matrix, b: Matrix) -> Matrix {
         if (a.columns != b.rows) {
-            throw "Sizes of matrices must be equal"
+            fatalError("Sizes of matrices must be equal")
         } else {
             var c: [Double] = Array(repeating: 0, count: a.rows * b.columns)
             vDSP_mmulD(a.values, vDSP_Stride(1),
@@ -159,21 +159,17 @@ extension Collection {
 extension String: LocalizedError {}
 
 // Test of matrix operators
-func testMatrixOperators() throws {
+func testMatrixOperators() {
     let a: Matrix = Matrix(from: [[1, 2], [3, 4], [5, 6], [7, 8]])
     let b: Matrix = Matrix(from: [[1, 2, 3], [4, 5, 6]])
-    print(a.shape)
-    print(b.shape)
-    do {
-        print("Add:")
-        (try print((a + a).values))
-        print("Substract:")
-        (try print((a - a).values))
-        print("Multiply element-wise:")
-        (try print((a * a).values))
-        print("Multiply:")
-        let c: Matrix = try a ~* b
-        print(c.shape)
-        print(c.values)
-    }
+    print("Add:")
+    print((a + a).values)
+    print("Substract:")
+    print((a - a).values)
+    print("Multiply element-wise:")
+    print((a * a).values)
+    print("Multiply:")
+    let c: Matrix = a ~* b
+    print(c.shape)
+    print(c.values)
 }
