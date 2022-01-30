@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Accelerate
 
 class Core {
     let layers: Array<Dense>
@@ -38,6 +39,24 @@ class Core {
         (errors as NSArray).write(
             to: URL(fileURLWithPath: "/Users/vadim.turko/Documents/Projects/detect_numbers/errors.csv"),
             atomically: true)
+    }
+    
+    func test(inputs: Matrix, targets: Matrix) {
+        var result = inputs
+        for layer in layers {
+            result = layer.forward(x: result)
+        }
+        
+        
+        let digits: [Int] = targets.maxInColumns()
+        let predicted_digits: [Int] = result.maxInColumns()
+        let diff = zip(digits, predicted_digits).reduce(0) { partialResult, d in
+            partialResult + (d.0 == d.1 ? 1 : 0)
+        }
+        
+        let percentage = Double(diff * 100) / Double(targets.columns)
+        print(percentage)
+        
     }
     
     private func logloss(_ targets: Matrix, _ result: Matrix) -> Double {

@@ -42,10 +42,16 @@ class Matrix {
         self.columns = shape.1
         self.values = array
     }
-    
-    func appendRow(row: Array<Double>) -> Matrix {
-        assert(row.endIndex == columns, "Cannot append row of size \(row.endIndex)")
-        return Matrix(from: (values + row), shape: (rows + 1, columns))
+}
+
+// Useful getters
+extension Matrix {
+    func maxInColumns() -> [Int] {
+        var result: [Int] = []
+        for subsequence in transposed().values.unfoldSubSequences(limitedTo: rows) {
+            result.append(Int(vDSP.indexOfMaximum(subsequence).0))
+        }
+        return result
     }
 }
 
@@ -65,6 +71,11 @@ extension Matrix {
     
     func applyOnColumns(_ function: ([Double]) -> [Double]) -> Matrix {
         return transposed().applyOnRows(function).transposed()
+    }
+    
+    func appendRow(row: Array<Double>) -> Matrix {
+        assert(row.endIndex == columns, "Cannot append row of size \(row.endIndex)")
+        return Matrix(from: (values + row), shape: (rows + 1, columns))
     }
 }
 
