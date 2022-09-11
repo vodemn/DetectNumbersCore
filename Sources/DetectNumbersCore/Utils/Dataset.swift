@@ -46,7 +46,10 @@ private func parseCSV<T: Numeric>(_ csv: String, _ convert: (String) -> T) -> [[
 
 private func loadFile(_ name: String) -> String? {
     do {
-        return try String(contentsOfFile: "/Users/vadim.turko/Documents/Projects/detect_numbers/\(name).csv")
+        let packageURL = URL(fileURLWithPath: #file).deletingLastPathComponent()
+        let fileURL = packageURL.appendingPathComponent("\(name).csv")
+        return try String(contentsOf: fileURL)
+        //return try String(contentsOfFile: "/Users/vadim.turko/Documents/Projects/detect_numbers/\(name).csv")
     } catch {
         print(error)
         return nil
