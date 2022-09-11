@@ -25,6 +25,10 @@ class Matrix {
         get {return self.values.max()!}
     }
     
+    var valuesAsMatrix: [[Double]] {
+        get {return self.values.chunked(into: self.columns)}
+    }
+    
     init(fill: Double, shape: (Int, Int)) {
         self.rows = shape.0
         self.columns = shape.1
@@ -154,6 +158,14 @@ extension Collection {
             let end = self.index(start, offsetBy: maxLength, limitedBy: self.endIndex) ?? self.endIndex
             defer { start = end }
             return self[start..<end]
+        }
+    }
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
         }
     }
 }

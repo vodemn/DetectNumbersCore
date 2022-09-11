@@ -36,9 +36,9 @@ class Core {
             }
         }
         print("Trained in \(CFAbsoluteTimeGetCurrent() - start) seconds")
-        (errors as NSArray).write(
-            to: URL(fileURLWithPath: "/Users/vadim.turko/Documents/Projects/detect_numbers/errors.csv"),
-            atomically: true)
+        (errors as NSArray).write(to: getFileUrl(filename: "Generated/Errors.csv"), atomically: true)
+        
+        saveDensesToFile()
     }
     
     func test(inputs: Matrix, targets: Matrix) {

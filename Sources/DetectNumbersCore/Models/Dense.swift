@@ -9,7 +9,7 @@ import Foundation
 import Accelerate
 
 class Dense {
-    var w: Matrix
+    public var w: Matrix
     let lr: Double
     var cache: (Matrix, Matrix)?
     
