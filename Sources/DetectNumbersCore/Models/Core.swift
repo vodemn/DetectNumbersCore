@@ -1,6 +1,6 @@
 //
-//  core.swift
-//  core
+//  Core.swift
+//  Core
 //
 //  Created by Vadim Turko on 12/27/21.
 //

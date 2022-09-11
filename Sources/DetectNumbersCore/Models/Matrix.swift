@@ -1,6 +1,6 @@
 //
-//  matrix.swift
-//  matrix
+//  Matrix.swift
+//  Matrix
 //
 //  Created by Vadim Turko on 12/23/21.
 //

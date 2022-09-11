@@ -1,6 +1,6 @@
 //
-//  rand_array.swift
-//  rand_array
+//  RandDouble.swift
+//  RandDouble
 //
 //  Created by Vadim Turko on 1/29/22.
 //

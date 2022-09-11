@@ -30,24 +30,3 @@ extension Core {
         }
     }
 }
-
-extension Matrix {
-    func appendMatrixToFile() throws {
-        if let data = try? JSONSerialization.data(withJSONObject: self.valuesAsMatrix, options: []) {
-            let fileURL = getFileUrl(filename: "Generated/TrainedCoreValues.txt")
-            if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
-                defer {
-                    fileHandle.closeFile()
-                }
-                fileHandle.seekToEndOfFile()
-                
-                fileHandle.write("\n".data(using: .utf8)!)
-                fileHandle.write(data)
-            }
-            else {
-                try data.write(to: fileURL, options: .atomic)
-            }
-        }
-    }
-}
-

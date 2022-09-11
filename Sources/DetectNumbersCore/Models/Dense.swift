@@ -1,6 +1,6 @@
 //
-//  dense.swift
-//  dense
+//  Dense.swift
+//  Dense
 //
 //  Created by Vadim Turko on 12/23/21.
 //
