@@ -16,13 +16,25 @@ final class DetectNumbersCoreTests: XCTestCase {
         print(c.shape)
         print(c.values)
     }
-
+    
     func testTraining() throws {
-        let dataset: ((Matrix, Matrix), (Matrix, Matrix))? = loadDataset()
-        if (dataset != nil) {
-            let network: Core = Core(inputSize: dataset!.0.0.rows, outputSize: dataset!.1.0.rows, neurons: 10)
-            network.train(inputs: dataset!.0.0, targets: dataset!.1.0, epochs: 380, lr: 0.4)
-            network.test(inputs: dataset!.0.1, targets: dataset!.1.1)
+        if let dataset = loadDataset() {
+            let network: Core = Core(inputSize: dataset.0.0.rows, outputSize: dataset.1.0.rows, neurons: 10)
+            network.train(inputs: dataset.0.0, targets: dataset.1.0, epochs: 380, lr: 0.4)
+            _ = network.test(inputs: dataset.0.1, targets: dataset.1.1)
         }
+    }
+    
+    func testSaveAndRestore() throws {
+        let dataset: ((Matrix, Matrix), (Matrix, Matrix))? = loadDataset()
+        
+        let network: Core = Core(inputSize: dataset!.0.0.rows, outputSize: dataset!.1.0.rows, neurons: 10)
+        network.train(inputs: dataset!.0.0, targets: dataset!.1.0, epochs: 380, lr: 0.4)
+        let originalResult = network.test(inputs: dataset!.0.1, targets: dataset!.1.1)
+        
+        let restoredNetwork: Core = Core(weightArrays: restoreDensesFromFile())
+        let restoredResult = restoredNetwork.test(inputs: dataset!.0.1, targets: dataset!.1.1)
+        
+        XCTAssertEqual(originalResult, restoredResult)
     }
 }

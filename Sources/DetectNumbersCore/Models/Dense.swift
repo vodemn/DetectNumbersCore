@@ -18,6 +18,10 @@ class Dense {
         self.w = Matrix.init(from: weights)
     }
     
+    init(w: Matrix){
+        self.w = w
+    }
+    
     func forward(x: Matrix) -> Matrix {
         let x_ext: Matrix = x.appendRow(row: Array(repeating: 1, count: x.columns))
         var result = self.w ~* x_ext

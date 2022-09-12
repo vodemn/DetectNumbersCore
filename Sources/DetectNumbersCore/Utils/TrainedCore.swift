@@ -7,9 +7,10 @@
 
 import Foundation
 
+let fileURL = getFileUrl(filename: "Generated/TrainedCoreValues.txt")
+
 extension Core {
     func saveDensesToFile() {
-        let fileURL = getFileUrl(filename: "Generated/TrainedCoreValues.txt")
         try! FileManager.default.removeItem(at: fileURL)
         var fileHandle: FileHandle?
         try! self.layers.forEach { layer in
@@ -29,4 +30,16 @@ extension Core {
             }
         }
     }
+}
+
+func restoreDensesFromFile() -> [[[Double]]] {
+    let content = try! String(contentsOf: fileURL, encoding: .utf8)
+    var result: [[[Double]]] = []
+    content.enumerateSubstrings(in: content.startIndex..<content.endIndex, options: .byLines) {
+        (substring, range, _, __) in
+        guard let substring = substring else { return }
+        let array = try! JSONSerialization.jsonObject(with: Data(substring.utf8)) as! [[Double]]
+        result.append(array)
+    }
+    return result
 }

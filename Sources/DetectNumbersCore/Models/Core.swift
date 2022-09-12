@@ -18,7 +18,15 @@ class Core {
         ]
     }
     
-    init(layers: Array<Dense>) {
+    init(weightArrays: [[[Double]]]) {
+        var layers: [Dense] = []
+        for (index, item) in weightArrays.enumerated() {
+            if (index < weightArrays.endIndex - 1) {
+                layers.append(InnerDense(w: Matrix(from: item)))
+            } else {
+                layers.append(LastDense(w: Matrix(from: item)))
+            }
+        }
         self.layers = layers
     }
     
@@ -45,7 +53,7 @@ class Core {
         saveDensesToFile()
     }
     
-    func test(inputs: Matrix, targets: Matrix) {
+    func test(inputs: Matrix, targets: Matrix) -> Double {
         var result = inputs
         for layer in layers {
             result = layer.forward(x: result)
@@ -60,6 +68,7 @@ class Core {
         
         let percentage = Double(diff * 100) / Double(targets.columns)
         print(percentage)
+        return percentage
         
     }
     
