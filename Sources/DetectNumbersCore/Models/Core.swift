@@ -71,6 +71,16 @@ class Core {
         return percentage
         
     }
+
+    /// Returns an array where each item is a probability of item index value
+    func detect(input: [Double]) -> [Double] {
+        assert(input.endIndex == self.layers.first!.w.columns - 1)
+        var result = Matrix(from: input, shape: (input.endIndex, 1))
+        for layer in layers {
+            result = layer.forward(x: result)
+        }
+        return result.values
+    }
     
     private func logloss(_ targets: Matrix, _ result: Matrix) -> Double {
         let error: Double = (targets * result.apply({log($0)})).values.reduce(0, +)
