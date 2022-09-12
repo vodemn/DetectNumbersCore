@@ -40,8 +40,7 @@ final class DetectNumbersCoreTests: XCTestCase {
     
     func testDetection() throws {
         let dataset: ((Matrix, Matrix), (Matrix, Matrix))? = loadDataset()
-        let restoredNetwork: Core = Core(weightArrays: restoreDensesFromFile())
-        let result = restoredNetwork.detect(input: dataset!.0.1.transposed().valuesAsMatrix[0])
+        let result = DetectNumbersCore().detect(input: dataset!.0.1.transposed().valuesAsMatrix[0])
         let detectedNumberP = result.max()!
         let detectedNumber = result.firstIndex(of: detectedNumberP)!
         print((detectedNumber, String(format: "%.1f", (detectedNumberP * 100))))

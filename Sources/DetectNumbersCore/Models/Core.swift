@@ -30,7 +30,7 @@ class Core {
         self.layers = layers
     }
     
-    func train(inputs: Matrix, targets: Matrix, epochs: Int, lr: Double) {
+    internal func train(inputs: Matrix, targets: Matrix, epochs: Int, lr: Double) {
         var errors: [Double] = []
         let start = CFAbsoluteTimeGetCurrent()
         for _ in 0..<epochs {
@@ -53,7 +53,8 @@ class Core {
         saveDensesToFile()
     }
     
-    func test(inputs: Matrix, targets: Matrix) -> Double {
+    
+    internal func test(inputs: Matrix, targets: Matrix) -> Double {
         var result = inputs
         for layer in layers {
             result = layer.forward(x: result)

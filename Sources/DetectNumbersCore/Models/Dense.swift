@@ -9,7 +9,7 @@ import Foundation
 import Accelerate
 
 class Dense {
-    public var w: Matrix
+    var w: Matrix
     var cache: (Matrix, Matrix)?
     
     init(inputSize: Int, neurons: Int){
