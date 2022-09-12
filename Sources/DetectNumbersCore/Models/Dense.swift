@@ -10,14 +10,12 @@ import Accelerate
 
 class Dense {
     public var w: Matrix
-    let lr: Double
     var cache: (Matrix, Matrix)?
     
-    init(inputSize: Int, neurons: Int, lr: Double){
+    init(inputSize: Int, neurons: Int){
         let norm: Double = 2.0 / sqrt(Double(neurons + inputSize + 1))
         let weights: [[Double]] = (0..<neurons).map {_ in (0...inputSize).map { _ in Double.random01() * norm }}
         self.w = Matrix.init(from: weights)
-        self.lr = lr
     }
     
     func forward(x: Matrix) -> Matrix {
@@ -28,7 +26,7 @@ class Dense {
         return result
     }
     
-    func backward(dE: Matrix) -> Matrix {
+    func backward(dE: Matrix, lr: Double) -> Matrix {
         var dENext: Matrix = (dE.transposed() ~* w).transposed()
         dENext = dENext[0..<dENext.rows - 1]
         

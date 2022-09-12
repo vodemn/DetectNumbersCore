@@ -11,14 +11,18 @@ import Accelerate
 class Core {
     let layers: Array<Dense>
     
-    init(inputSize: Int, outputSize: Int, neurons: Int, lr: Double) {
+    init(inputSize: Int, outputSize: Int, neurons: Int) {
         self.layers = [
-            InnerDense(inputSize: inputSize, neurons: neurons, lr: lr),
-            LastDense(inputSize: neurons, neurons: outputSize, lr: lr),
+            InnerDense(inputSize: inputSize, neurons: neurons),
+            LastDense(inputSize: neurons, neurons: outputSize),
         ]
     }
     
-    func train(inputs: Matrix, targets: Matrix, epochs: Int) {
+    init(layers: Array<Dense>) {
+        self.layers = layers
+    }
+    
+    func train(inputs: Matrix, targets: Matrix, epochs: Int, lr: Double) {
         var errors: [Double] = []
         let start = CFAbsoluteTimeGetCurrent()
         for _ in 0..<epochs {
@@ -32,7 +36,7 @@ class Core {
             
             var dE: Matrix = logloss_derivative(targets, result)
             for layer in layers.reversed() {
-                dE = layer.backward(dE: dE)
+                dE = layer.backward(dE: dE, lr: lr)
             }
         }
         print("Trained in \(CFAbsoluteTimeGetCurrent() - start) seconds")
