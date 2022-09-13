@@ -8,7 +8,7 @@
 import Foundation
 import Accelerate
 
-class Matrix {
+public class Matrix {
     var values: [Double] = []
     let columns: Int
     var rows: Int

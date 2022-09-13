@@ -1,6 +1,10 @@
 public struct DetectNumbersCore {
     let core: Core
     
+    var inputSize: (Int, Int) {
+        get { return self.core.layers.first!.w.shape}
+    }
+    
     public init() {
         self.core = Core(weightArrays: restoreDensesFromFile())
     }
