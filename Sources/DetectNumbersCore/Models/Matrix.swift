@@ -29,19 +29,19 @@ public class Matrix {
         get {return self.values.chunked(into: self.columns)}
     }
     
-    init(fill: Double, shape: (Int, Int)) {
+    public init(fill: Double, shape: (Int, Int)) {
         self.rows = shape.0
         self.columns = shape.1
         self.values = Array(repeating: fill, count: rows*columns)
     }
     
-    init(from arrays: [[Double]]) {
+    public init(from arrays: [[Double]]) {
         self.rows = arrays.endIndex
         self.columns = arrays.first!.endIndex
         self.values = arrays.flatMap {$0}
     }
     
-    init(from array: [Double], shape: (Int, Int)) {
+    public init(from array: [Double], shape: (Int, Int)) {
         self.rows = shape.0
         self.columns = shape.1
         self.values = array
