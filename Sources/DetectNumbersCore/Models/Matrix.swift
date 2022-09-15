@@ -18,8 +18,8 @@ public class Matrix {
     //   4, 5, 6,
     //   7, 8, 9]
     //
-    var values: [Double] = []
-    public let columns: Int
+    public private(set) var values: [Double] = []
+    public private(set) let columns: Int
     public private(set) var rows: Int
     
     public var shape: (Int, Int) {
@@ -34,7 +34,7 @@ public class Matrix {
         get {return self.values.max()!}
     }
     
-    var valuesAsMatrix: [[Double]] {
+    public var valuesAsMatrix: [[Double]] {
         get {return self.values.chunked(into: self.columns)}
     }
     
