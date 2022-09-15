@@ -40,7 +40,9 @@ final class DetectNumbersCoreTests: XCTestCase {
     
     func testDetection() throws {
         let dataset: ((Matrix, Matrix), (Matrix, Matrix))? = loadDataset()
-        let result = DetectNumbersCore().detect(input: dataset!.0.1.transposed().valuesAsMatrix[0])
+        let restoredCore = DetectNumbersCore()
+        let result = restoredCore.detect(input: dataset!.0.1.transposed().valuesAsMatrix[0])
+        print(restoredCore.inputSize)
         let detectedNumberP = result.max()!
         let detectedNumber = result.firstIndex(of: detectedNumberP)!
         print((detectedNumber, String(format: "%.1f", (detectedNumberP * 100))))

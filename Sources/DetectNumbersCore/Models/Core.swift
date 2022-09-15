@@ -11,6 +11,13 @@ import Accelerate
 class Core {
     let layers: Array<Dense>
     
+    var inputSize: (Int, Int) {
+        get {
+            let sideSize = Int(sqrt(Double(self.layers.first!.w.columns - 1)))
+            return (sideSize, sideSize)
+        }
+    }
+    
     init(inputSize: Int, outputSize: Int, neurons: Int) {
         self.layers = [
             InnerDense(inputSize: inputSize, neurons: neurons),
@@ -72,7 +79,7 @@ class Core {
         return percentage
         
     }
-
+    
     /// Returns an array where each item is a probability of item index value
     func detect(input: [Double]) -> [Double] {
         assert(input.endIndex == self.layers.first!.w.columns - 1)

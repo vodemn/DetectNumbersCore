@@ -2,7 +2,7 @@ public struct DetectNumbersCore {
     let core: Core
     
     var inputSize: (Int, Int) {
-        get { return self.core.layers.first!.w.shape}
+        get {return self.core.inputSize}
     }
     
     public init() {
