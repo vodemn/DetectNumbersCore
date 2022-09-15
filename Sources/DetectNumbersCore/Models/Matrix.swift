@@ -9,11 +9,20 @@ import Foundation
 import Accelerate
 
 public class Matrix {
+    //
+    //  Values are stored row-by-row:
+    //
+    //  [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    //
+    //  [1, 2, 3,
+    //   4, 5, 6,
+    //   7, 8, 9]
+    //
     var values: [Double] = []
-    let columns: Int
-    var rows: Int
+    public let columns: Int
+    public private(set) var rows: Int
     
-    var shape: (Int, Int) {
+    public var shape: (Int, Int) {
         get {return (rows, columns)}
     }
     
