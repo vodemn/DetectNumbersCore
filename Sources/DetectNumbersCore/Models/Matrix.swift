@@ -140,8 +140,7 @@ extension Matrix {
     public subscript(range: CountableRange<Int>) -> Matrix {
         get {
             precondition(range.upperBound <= rows, "Invalid range")
-            let ran = (range.lowerBound * columns)..<(range.upperBound * columns)
-            return Matrix(from: Array(self.values[ran]), shape: (range.upperBound - range.lowerBound, columns))
+            return Matrix(from: Array(self.valuesAsMatrix[range]))
             
         }
     }
