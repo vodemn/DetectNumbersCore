@@ -19,7 +19,7 @@ public class Matrix {
     //   7, 8, 9]
     //
     public private(set) var values: [Double] = []
-    public private(set) let columns: Int
+    public let columns: Int
     public private(set) var rows: Int
     
     public var shape: (Int, Int) {
