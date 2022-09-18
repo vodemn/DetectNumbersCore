@@ -7,8 +7,8 @@
 
 import Foundation
 
-//let fileURL = getFileUrl(filename: "Generated/TrainedCoreValues.txt")
-let fileURL = getFileUrl(filename: "Generated/TrainedCoreValues.swift")
+//let fileURL = getFileURL(filename: "Generated/TrainedCoreValues.txt")
+let fileURL = getFileURL(filename: "Generated/TrainedCoreValues.swift")
 
 extension Core {
     func saveDensesToFile() {

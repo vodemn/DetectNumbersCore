@@ -55,18 +55,16 @@ class Core {
             }
         }
         print("Trained in \(CFAbsoluteTimeGetCurrent() - start) seconds")
-        (errors as NSArray).write(to: getFileUrl(filename: "Generated/Errors.csv"), atomically: true)
+        (errors as NSArray).write(to: getFileURL(filename: "Generated/Errors.csv"), atomically: true)
         
         saveDensesToFile()
     }
-    
     
     internal func test(inputs: Matrix, targets: Matrix) -> Double {
         var result = inputs
         for layer in layers {
             result = layer.forward(x: result)
         }
-        
         
         let digits: [Int] = targets.maxInColumns()
         let predicted_digits: [Int] = result.maxInColumns()

@@ -4,7 +4,6 @@
 //
 //  Created by Vadim Turko on 12/25/21.
 //
-
 import Foundation
 
 func loadDataset() -> ((Matrix, Matrix), (Matrix, Matrix))? {
@@ -46,7 +45,7 @@ private func parseCSV<T: Numeric>(_ csv: String, _ convert: (String) -> T) -> [[
 
 private func loadFile(_ name: String) -> String? {
     do {
-        return try String(contentsOf: getFileUrl(filename: "Dataset/\(name).csv"))
+        return try String(contentsOf: getFileURL(filename: "Dataset/\(name).csv"))
     } catch {
         print(error)
         return nil
