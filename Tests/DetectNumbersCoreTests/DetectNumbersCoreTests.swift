@@ -17,7 +17,7 @@ final class DetectNumbersCoreTests: XCTestCase {
         network.train(inputs: dataset!.0.0, targets: dataset!.1.0, epochs: 380, lr: 0.4)
         let originalResult = network.test(inputs: dataset!.0.1, targets: dataset!.1.1)
         
-        let restoredNetwork: Core = Core(weightArrays: restoreDensesFromFile())
+        let restoredNetwork: Core = Core(weightArrays: savedDenses)
         let restoredResult = restoredNetwork.test(inputs: dataset!.0.1, targets: dataset!.1.1)
         
         XCTAssertEqual(originalResult, restoredResult)
