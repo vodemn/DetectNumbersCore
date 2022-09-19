@@ -28,7 +28,6 @@ let package = Package(
                 .process("Utils/Dataset/mnist_train.csv"),
                 .process("Utils/Dataset/mnist_test.csv"),
                 .process("Utils/Generated/Errors.csv"),
-                .process("Utils/Generated/TrainedCoreValues.txt")
             ]
         ),
         .testTarget(

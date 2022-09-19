@@ -15,6 +15,7 @@ final class DetectNumbersCoreTests: XCTestCase {
         let network: Core = Core(inputSize: dataset.0.0.rows, outputSize: dataset.1.0.rows, neurons: 10)
         network.train(inputs: dataset.0.0, targets: dataset.1.0, epochs: 380, lr: 0.4)
         let originalResult = network.test(inputs: dataset.0.1, targets: dataset.1.1)
+        network.saveDensesToFile()
         
         let restoredNetwork: Core = Core(weightArrays: savedDenses)
         let restoredResult = restoredNetwork.test(inputs: dataset.0.1, targets: dataset.1.1)

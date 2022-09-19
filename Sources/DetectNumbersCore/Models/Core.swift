@@ -56,8 +56,6 @@ class Core {
         }
         print("Trained in \(CFAbsoluteTimeGetCurrent() - start) seconds")
         (errors as NSArray).write(to: getFileURL(filename: "Generated/Errors.csv"), atomically: true)
-        
-        saveDensesToFile()
     }
     
     internal func test(inputs: Matrix, targets: Matrix) -> Double {
