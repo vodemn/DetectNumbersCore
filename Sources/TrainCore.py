@@ -1,14 +1,10 @@
-from array import array
-from cgitb import text
 import csv
 import string
-from tokenize import Double
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.io
 
 
-def run_lab(lr, first_layer_size: int = 256, show_plot: bool = True):
+def train(lr, first_layer_size: int = 256, show_plot: bool = True):
     train_inputs, train_targets = parse_csv("mnist_train")
     test_inputs, test_targets = parse_csv("mnist_test")
 
@@ -46,28 +42,6 @@ def run_lab(lr, first_layer_size: int = 256, show_plot: bool = True):
     return prediction_accuracy
 
 
-def parse_csv(filename: string):
-    inputs = []
-    targets = []
-    with open('Sources/Dataset/' + filename + '.csv', newline='') as csvfile:
-        rows = csv.reader(csvfile, delimiter='\n')
-        for i, row in enumerate(rows):
-            if (i > 0):
-                values = row[0].split(",")
-                inputs.append(
-                    [int(value) / 255 for value in values[1:]])
-                targets.append(int_to_onehot(int(values[0])))
-    inputs = np.array(inputs).T
-    targets = np.array(targets).T
-    return (inputs, targets)
-
-
-def int_to_onehot(n: int) -> np.array:
-    v = [0] * 10
-    v[n] = 1
-    return np.array(v)
-
-
 class Dense:
     def __init__(self, in_dim, neurons_count, h, h_derive, lr):
         np.random.seed(0)
@@ -98,12 +72,18 @@ class Dense:
         return dE_next
 
 
+# Training error handling
+
+
 def logloss(target, result):
     return (-1 / target.shape[1]) * np.sum(target * np.log(result + 1e-5))
 
 
 def logloss_derive(target, result):
     return result - target
+
+
+# Layers activation func
 
 
 def sigmoid(i):
@@ -119,8 +99,34 @@ def softmax(i):
     e_sum = np.sum(e, axis=0, keepdims=True)
     return e / e_sum
 
+# Utils
+
+
+def parse_csv(filename: string):
+    inputs = []
+    targets = []
+    with open('Sources/Dataset/' + filename + '.csv', newline='') as csvfile:
+        rows = csv.reader(csvfile, delimiter='\n')
+        for i, row in enumerate(rows):
+            if (i > 0):
+                values = row[0].split(",")
+                inputs.append(
+                    [int(value) / 255 for value in values[1:]])
+                targets.append(int_to_onehot(int(values[0])))
+    inputs = np.array(inputs).T
+    targets = np.array(targets).T
+    return (inputs, targets)
+
+
+def int_to_onehot(n: int) -> np.array:
+    v = [0] * 10
+    v[n] = 1
+    return np.array(v)
+
+
 def saveWeights(weights):
-    text_file = open("Sources/DetectNumbersCore/Generated/BestWeights.swift", "w")
+    text_file = open(
+        "Sources/DetectNumbersCore/Generated/BestWeights.swift", "w")
     text_file.write("let bestWeights: [[[Double]]] = [")
     for dense in weights:
         text_file.write("\n    ")
@@ -134,7 +140,5 @@ def arraysToString(arrays):
     return '[' + ','.join('[' + ','.join([str(value) for value in row]) + ']' for row in arrays) + ']'
 
 
-result = run_lab(lr=0.08, first_layer_size=28, show_plot=False)
+result = train(lr=0.08, first_layer_size=28, show_plot=False)
 print(result)
-
-

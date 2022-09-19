@@ -40,4 +40,3 @@ class Core {
         return result.values
     }
 }
-
