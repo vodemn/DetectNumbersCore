@@ -6,7 +6,7 @@ public struct DetectNumbersCore {
     }
     
     public init() {
-        self.core = Core(weightArrays: savedDenses)
+        self.core = Core(weightArrays: bestWeights)
     }
     
     public func detect(input: [Double]) -> [Double] {

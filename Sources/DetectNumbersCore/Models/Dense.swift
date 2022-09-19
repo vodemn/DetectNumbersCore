@@ -12,12 +12,6 @@ class Dense {
     var w: Matrix
     var cache: (Matrix, Matrix)?
     
-    init(inputSize: Int, neurons: Int){
-        let norm: Double = 2.0 / sqrt(Double(neurons + inputSize + 1))
-        let weights: [[Double]] = (0..<neurons).map {_ in (0...inputSize).map { _ in Double.random01() * norm }}
-        self.w = Matrix.init(from: weights)
-    }
-    
     init(w: Matrix){
         self.w = w
     }
@@ -30,28 +24,7 @@ class Dense {
         return result
     }
     
-    func backward(dE: Matrix, lr: Double) -> Matrix {
-        var dENext: Matrix = (dE.transposed() ~* w).transposed()
-        dENext = dENext[0..<dENext.rows - 1]
-        
-        var derive: Matrix
-        let backwardAct: Matrix? =  backwardActivation(cache!.1)
-        if (backwardAct != nil) {
-            derive = dE * backwardAct!
-        } else {
-            derive = dE
-        }
-        derive = (derive / 1000) ~* cache!.0.transposed()
-        w = w - (derive * lr)
-        
-        return dENext
-    }
-    
     func forwardActivation(x: Matrix) -> Matrix {
-        fatalError("Activation function is not implemented")
-    }
-    
-    func backwardActivation(_ dE: Matrix) -> Matrix? {
         fatalError("Activation function is not implemented")
     }
 }
@@ -61,19 +34,9 @@ class InnerDense: Dense {
     func forwardActivation(x: Matrix) -> Matrix {
         return x.apply({sigmoid($0)})
     }
-    
-    override
-    func backwardActivation(_ dE: Matrix) -> Matrix? {
-        let output: Matrix = cache!.1.apply({sigmoid_derived($0)})
-        return dE * output
-    }
-    
+
     private func sigmoid(_ i: Double) -> Double {
         return 1 / (1 + exp(-i))
-    }
-    
-    private func sigmoid_derived(_ i: Double) -> Double {
-        return i * (1 - i)
     }
 }
 
@@ -81,11 +44,6 @@ class LastDense: Dense {
     override
     func forwardActivation(x: Matrix) -> Matrix {
         return x.applyOnColumns({softmax($0)})
-    }
-    
-    override
-    func backwardActivation(_ dE: Matrix) -> Matrix? {
-        return nil
     }
     
     private func softmax(_ row: Array<Double>) -> Array<Double> {
