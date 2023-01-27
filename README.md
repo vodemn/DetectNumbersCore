@@ -6,7 +6,7 @@ This package implements a neural network trained on MNIST dataset to detect hand
 
 The MNIST dataset of handwritten digits has a training set of 60,000 examples, and a test set of 10,000 examples:
 
-![MNIST dataset](https://www.researchgate.net/profile/Steven-Young-5/publication/306056875/figure/fig1/AS:393921575309346@1470929630835/Example-images-from-the-MNIST-dataset.png)
+![Example-images-from-the-MNIST-dataset](https://user-images.githubusercontent.com/44135514/215034545-58986030-d9df-4999-9d24-8e794a9fd28c.png)
 
 ## Setup
 
