@@ -141,4 +141,4 @@ def arraysToString(arrays):
 
 
 result = train(lr=0.08, first_layer_size=28, show_plot=False)
-print(result)
+print("Prediction accuracy %.1f" % (result * 100))
